@@ -1,7 +1,6 @@
-import runexp
-import testexp
 import summary
 
+import runexp
 
 memo = "multi_phase/sumo/pipeline"
 runexp.main(memo)

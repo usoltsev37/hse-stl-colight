@@ -1,17 +1,18 @@
+import os
+import random
 
 import numpy as np
-from keras.layers import Input, Dense, Conv2D, Flatten, BatchNormalization, Activation, Multiply, Add
-from keras.models import Model, model_from_json, load_model
-from keras.optimizers import RMSprop
+from keras import backend as K
+from keras.callbacks import EarlyStopping
+from keras.layers import Dense, Conv2D, Flatten, BatchNormalization, Activation
+from keras.layers import Layer
 from keras.layers.core import Dropout
 from keras.layers.pooling import MaxPooling2D
-from keras import backend as K
-import random
-from keras.layers import Layer
-import os
-from keras.callbacks import EarlyStopping, TensorBoard
+from keras.models import model_from_json, load_model
+from keras.optimizers import RMSprop
 
 from agent import Agent
+
 
 class Selector(Layer):
 
@@ -85,15 +86,15 @@ class NetworkAgent(Agent):
 
         # ===== check num actions == num phases ============
 
-        #self.num_actions = self.dic_sumo_env_conf["ACTION_DIM"]
-        #self.num_phases = self.dic_sumo_env_conf["NUM_PHASES"]
+        # self.num_actions = self.dic_sumo_env_conf["ACTION_DIM"]
+        # self.num_phases = self.dic_sumo_env_conf["NUM_PHASES"]
         self.num_actions = len(dic_traffic_env_conf["PHASE"][dic_traffic_env_conf['SIMULATOR_TYPE']])
         self.num_phases = len(dic_traffic_env_conf["PHASE"][dic_traffic_env_conf['SIMULATOR_TYPE']])
         self.num_lanes = np.sum(np.array(list(self.dic_traffic_env_conf["LANE_NUM"].values())))
 
         self.memory = self.build_memory()
 
-        if cnt_round == 0: 
+        if cnt_round == 0:
             # initialization
             if os.listdir(self.dic_path["PATH_TO_MODEL"]):
                 if self.dic_traffic_env_conf['ONE_MODEL']:
@@ -102,23 +103,24 @@ class NetworkAgent(Agent):
                     self.load_network("round_0_inter_{0}".format(intersection_id))
             else:
                 self.q_network = self.build_network()
-            #self.load_network(self.dic_agent_conf["TRAFFIC_FILE"], file_path=self.dic_path["PATH_TO_PRETRAIN_MODEL"])
+            # self.load_network(self.dic_agent_conf["TRAFFIC_FILE"], file_path=self.dic_path["PATH_TO_PRETRAIN_MODEL"])
             self.q_network_bar = self.build_network_from_copy(self.q_network)
         else:
             try:
                 if best_round:
                     # TODO add "ONE_MODEL"
                     # use model pool
-                    self.load_network("round_{0}_inter_{1}".format(best_round,self.intersection_id))
+                    self.load_network("round_{0}_inter_{1}".format(best_round, self.intersection_id))
 
                     if bar_round and bar_round != best_round and cnt_round > 10:
                         # load q_bar network from model pool
-                        self.load_network_bar("round_{0}_inter_{1}".format(bar_round,self.intersection_id))
+                        self.load_network_bar("round_{0}_inter_{1}".format(bar_round, self.intersection_id))
                     else:
                         if "UPDATE_Q_BAR_EVERY_C_ROUND" in self.dic_agent_conf:
                             if self.dic_agent_conf["UPDATE_Q_BAR_EVERY_C_ROUND"]:
                                 self.load_network_bar("round_{0}".format(
-                                    max((best_round - 1) // self.dic_agent_conf["UPDATE_Q_BAR_FREQ"] * self.dic_agent_conf["UPDATE_Q_BAR_FREQ"], 0),
+                                    max((best_round - 1) // self.dic_agent_conf["UPDATE_Q_BAR_FREQ"] *
+                                        self.dic_agent_conf["UPDATE_Q_BAR_FREQ"], 0),
                                     self.intersection_id))
                             else:
                                 self.load_network_bar("round_{0}_inter_{1}".format(
@@ -131,11 +133,12 @@ class NetworkAgent(Agent):
                 else:
                     # not use model pool
                     if self.dic_traffic_env_conf['ONE_MODEL']:
-                        self.load_network("round_{0}".format(cnt_round-1, self.intersection_id))
+                        self.load_network("round_{0}".format(cnt_round - 1, self.intersection_id))
                         if "UPDATE_Q_BAR_EVERY_C_ROUND" in self.dic_agent_conf:
                             if self.dic_agent_conf["UPDATE_Q_BAR_EVERY_C_ROUND"]:
                                 self.load_network_bar("round_{0}".format(
-                                    max((cnt_round - 1) // self.dic_agent_conf["UPDATE_Q_BAR_FREQ"] * self.dic_agent_conf["UPDATE_Q_BAR_FREQ"], 0)))
+                                    max((cnt_round - 1) // self.dic_agent_conf["UPDATE_Q_BAR_FREQ"] *
+                                        self.dic_agent_conf["UPDATE_Q_BAR_FREQ"], 0)))
                             else:
                                 self.load_network_bar("round_{0}".format(
                                     max(cnt_round - self.dic_agent_conf["UPDATE_Q_BAR_FREQ"], 0)))
@@ -144,12 +147,13 @@ class NetworkAgent(Agent):
                                 max(cnt_round - self.dic_agent_conf["UPDATE_Q_BAR_FREQ"], 0)))
 
                     else:
-                        self.load_network("round_{0}_inter_{1}".format(cnt_round-1, self.intersection_id))
+                        self.load_network("round_{0}_inter_{1}".format(cnt_round - 1, self.intersection_id))
 
                         if "UPDATE_Q_BAR_EVERY_C_ROUND" in self.dic_agent_conf:
                             if self.dic_agent_conf["UPDATE_Q_BAR_EVERY_C_ROUND"]:
                                 self.load_network_bar("round_{0}_inter_{1}".format(
-                                    max((cnt_round - 1) // self.dic_agent_conf["UPDATE_Q_BAR_FREQ"] * self.dic_agent_conf["UPDATE_Q_BAR_FREQ"], 0),
+                                    max((cnt_round - 1) // self.dic_agent_conf["UPDATE_Q_BAR_FREQ"] *
+                                        self.dic_agent_conf["UPDATE_Q_BAR_FREQ"], 0),
                                     self.intersection_id))
                             else:
                                 self.load_network_bar("round_{0}_inter_{1}".format(
@@ -189,7 +193,8 @@ class NetworkAgent(Agent):
 
     @staticmethod
     def _separate_network_structure(state_features, dense_d, num_actions, memo=""):
-        hidden_1 = Dense(dense_d, activation="sigmoid", name="hidden_separate_branch_{0}_1".format(memo))(state_features)
+        hidden_1 = Dense(dense_d, activation="sigmoid", name="hidden_separate_branch_{0}_1".format(memo))(
+            state_features)
         q_values = Dense(num_actions, activation="linear", name="q_values_separate_branch_{0}".format(memo))(hidden_1)
         return q_values
 
@@ -197,13 +202,14 @@ class NetworkAgent(Agent):
         if file_path == None:
             file_path = self.dic_path["PATH_TO_MODEL"]
         self.q_network = load_model(os.path.join(file_path, "%s.h5" % file_name), custom_objects={"Selector": Selector})
-        print("succeed in loading model %s"%file_name)
+        print("succeed in loading model %s" % file_name)
 
     def load_network_bar(self, file_name, file_path=None):
         if file_path == None:
             file_path = self.dic_path["PATH_TO_MODEL"]
-        self.q_network_bar = load_model(os.path.join(file_path, "%s.h5" % file_name), custom_objects={"Selector": Selector})
-        print("succeed in loading model %s"%file_name)
+        self.q_network_bar = load_model(os.path.join(file_path, "%s.h5" % file_name),
+                                        custom_objects={"Selector": Selector})
+        print("succeed in loading model %s" % file_name)
 
     def save_network(self, file_name):
         self.q_network.save(os.path.join(self.dic_path["PATH_TO_MODEL"], "%s.h5" % file_name))
@@ -231,9 +237,7 @@ class NetworkAgent(Agent):
                         loss=self.dic_agent_conf["LOSS_FUNCTION"])
         return network
 
-
     def prepare_Xs_Y(self, memory, dic_exp_conf):
-
 
         ind_end = len(memory)
         print("memory size before forget: {0}".format(ind_end))
@@ -287,7 +291,6 @@ class NetworkAgent(Agent):
                    self.dic_traffic_env_conf["LIST_STATE_FEATURE"]]
         self.Y = np.array(Y)
 
-
     def convert_state_to_input(self, s):
         if self.dic_traffic_env_conf["BINARY_PHASE_EXPANSION"]:
             inputs = []
@@ -301,7 +304,6 @@ class NetworkAgent(Agent):
             return inputs
         else:
             return [np.array([s[feature]]) for feature in self.dic_traffic_env_conf["LIST_STATE_FEATURE"]]
-
 
     def choose_action(self, count, state):
 

@@ -1,8 +1,9 @@
 import json
 import os
 import pickle
-from config import DIC_AGENTS, DIC_ENVS
 from copy import deepcopy
+
+from config import DIC_AGENTS, DIC_ENVS
 
 
 def check_all_workers_working(list_cur_p):
@@ -22,17 +23,17 @@ def downsample(path_to_log, i):
     with open(path_to_pkl, "wb") as f_subset:
         pickle.dump(subset_data, f_subset)
 
-def downsample_for_system(path_to_log,dic_traffic_env_conf):
-    for i in range(dic_traffic_env_conf['NUM_INTERSECTIONS']):
-        downsample(path_to_log,i)
 
+def downsample_for_system(path_to_log, dic_traffic_env_conf):
+    for i in range(dic_traffic_env_conf['NUM_INTERSECTIONS']):
+        downsample(path_to_log, i)
 
 
 # TODO test on multiple intersections
 def test(model_dir, cnt_round, run_cnt, _dic_traffic_env_conf, if_gui):
     dic_traffic_env_conf = deepcopy(_dic_traffic_env_conf)
     records_dir = model_dir.replace("model", "records")
-    model_round = "round_%d"%cnt_round
+    model_round = "round_%d" % cnt_round
     dic_path = {}
     dic_path["PATH_TO_MODEL"] = model_dir
     dic_path["PATH_TO_WORK_DIRECTORY"] = records_dir
@@ -56,13 +57,11 @@ def test(model_dir, cnt_round, run_cnt, _dic_traffic_env_conf, if_gui):
     with open(os.path.join(records_dir, "test_exp.conf"), "w") as f:
         json.dump(dic_exp_conf, f)
 
-
     if dic_exp_conf["MODEL_NAME"] in dic_exp_conf["LIST_MODEL_NEED_TO_UPDATE"]:
         dic_agent_conf["EPSILON"] = 0  # dic_agent_conf["EPSILON"]  # + 0.1*cnt_gen
         dic_agent_conf["MIN_EPSILON"] = 0
 
     agents = []
-
 
     try:
         path_to_log = os.path.join(dic_path["PATH_TO_WORK_DIRECTORY"], "test_round", model_round)
@@ -78,7 +77,7 @@ def test(model_dir, cnt_round, run_cnt, _dic_traffic_env_conf, if_gui):
 
         for i in range(dic_traffic_env_conf['NUM_AGENTS']):
             agent_name = dic_exp_conf["MODEL_NAME"]
-            if agent_name=='CoLight_Signal':
+            if agent_name == 'CoLight_Signal':
                 agent = DIC_AGENTS[agent_name](
                     dic_agent_conf=dic_agent_conf,
                     dic_traffic_env_conf=dic_traffic_env_conf,
@@ -96,14 +95,12 @@ def test(model_dir, cnt_round, run_cnt, _dic_traffic_env_conf, if_gui):
                     intersection_id=str(i)
                 )
             agents.append(agent)
-            
 
         for i in range(dic_traffic_env_conf['NUM_AGENTS']):
             if dic_traffic_env_conf["ONE_MODEL"]:
                 agents[i].load_network("{0}".format(model_round))
             else:
                 agents[i].load_network("{0}_inter_{1}".format(model_round, agents[i].intersection_id))
-
 
         step_num = 0
 
@@ -155,10 +152,10 @@ def test(model_dir, cnt_round, run_cnt, _dic_traffic_env_conf, if_gui):
         error_dir = model_dir.replace("model", "errors")
         if os.path.exists(error_dir):
             f = open(os.path.join(error_dir, "error_info.txt"), "a")
-            f.write("round_%d fail to test model"%cnt_round)
+            f.write("round_%d fail to test model" % cnt_round)
             f.close()
         else:
             os.makedirs(error_dir)
             f = open(os.path.join(error_dir, "error_info.txt"), "a")
-            f.write("round_%d fail to test model"%cnt_round)
+            f.write("round_%d fail to test model" % cnt_round)
             f.close()

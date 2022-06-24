@@ -1,6 +1,6 @@
 # CoLight
 
-CoLight is a reinforcement learning agent for network-level traffic signal control. 
+CoLight is a reinforcement learning agent for network-level traffic signal control.
 
 ```
 @inproceedings{colight,
@@ -13,7 +13,9 @@ CoLight is a reinforcement learning agent for network-level traffic signal contr
 } 
 ```
 
-It shares the similar code structure with PressLight ([PressLight: Learning Max Pressure Control to Coordinate Traffic Signals in Arterial Network](http://personal.psu.edu/hzw77/publications/presslight-kdd19.pdf)) from KDD 2019.
+It shares the similar code structure with
+PressLight ([PressLight: Learning Max Pressure Control to Coordinate Traffic Signals in Arterial Network](http://personal.psu.edu/hzw77/publications/presslight-kdd19.pdf))
+from KDD 2019.
 
 Usage and more information can be found below.
 
@@ -28,7 +30,7 @@ We recommend to run the code through docker. Some brief documentation can be fou
 ``sudo docker pull hzw77/colight:v0.1``
 
 2. Pull the codes for CoLight.
-``git clone https://github.com/wingsweihua/colight.git``
+   ``git clone https://github.com/wingsweihua/colight.git``
 
 
 3. Please run the built docker image to initiate a docker container. Please remember to mount the code directory.
@@ -47,8 +49,8 @@ Here, ``-O`` option cannot be omitted unless debug is necessary. In the file ``r
 
 * ``runexp.py``
 
-  Run the pipeline under different traffic flows. Specific traffic flow files as well as basic configuration can be assigned in this file. For details about config, please turn to ``config.py``.
-
+  Run the pipeline under different traffic flows. Specific traffic flow files as well as basic configuration can be
+  assigned in this file. For details about config, please turn to ``config.py``.
 
 For most cases, you might only modify traffic files and config parameters in ``runexp.py``.
 
@@ -60,9 +62,8 @@ For most cases, you might only modify traffic files and config parameters in ``r
 
 * real-world data
 
-  Traffic file and road networks of New York City can be found in ``data/NewYork``, it contains two networks at different scale: 196 intersection and 48 intersections. Jinan and Hangzhou dataset are also included.
-
-
+  Traffic file and road networks of New York City can be found in ``data/NewYork``, it contains two networks at
+  different scale: 196 intersection and 48 intersections. Jinan and Hangzhou dataset are also included.
 
 ## Agent
 
@@ -80,13 +81,15 @@ More details about this project are demonstrated in this part.
 
 * ``config.py``
 
-  The whole configuration of this project. Note that some parameters will be replaced in ``runexp.py`` while others can only be changed in this file, please be very careful!!!
+  The whole configuration of this project. Note that some parameters will be replaced in ``runexp.py`` while others can
+  only be changed in this file, please be very careful!!!
 
 * ``pipeline.py``
 
   The whole pipeline is implemented in this module:
 
-  Start a simulator environment, run a simulation for certain time(one round), construct samples from raw log data, update the model and model pooling.
+  Start a simulator environment, run a simulation for certain time(one round), construct samples from raw log data,
+  update the model and model pooling.
 
 * ``generator.py``
 
@@ -98,7 +101,8 @@ More details about this project are demonstrated in this part.
 
 * ``construct_sample.py``
 
-* Construct training samples from original data. Select desired state features in the config and compute the corrsponding average/instant reward with specific measure time.
+* Construct training samples from original data. Select desired state features in the config and compute the
+  corrsponding average/instant reward with specific measure time.
 
 * ``updater.py``
 

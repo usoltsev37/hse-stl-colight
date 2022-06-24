@@ -1,21 +1,23 @@
 import json
 import os
-import shutil
-import xml.etree.ElementTree as ET
-from generator import Generator
-from construct_sample import ConstructSample
-from updater import Updater
-from multiprocessing import Process, Pool
-from model_pool import ModelPool
-import random
 import pickle
-import model_test
-import pandas as pd
-import numpy as np
-from math import isnan
-import sys
+import random
+import shutil
 import time
 import traceback
+import xml.etree.ElementTree as ET
+from math import isnan
+from multiprocessing import Process
+
+import numpy as np
+import pandas as pd
+
+import model_test
+from construct_sample import ConstructSample
+from generator import Generator
+from model_pool import ModelPool
+from updater import Updater
+
 
 class Pipeline:
     _LIST_SUMO_FILES = [
@@ -100,7 +102,7 @@ class Pipeline:
         # copy sumo files
 
         shutil.copy(os.path.join(self.dic_path["PATH_TO_DATA"], self.dic_exp_conf["TRAFFIC_FILE"][0]),
-                        os.path.join(path, self.dic_exp_conf["TRAFFIC_FILE"][0]))
+                    os.path.join(path, self.dic_exp_conf["TRAFFIC_FILE"][0]))
         shutil.copy(os.path.join(self.dic_path["PATH_TO_DATA"], self.dic_exp_conf["ROADNET_FILE"]),
                     os.path.join(path, self.dic_exp_conf["ROADNET_FILE"]))
 
@@ -131,15 +133,15 @@ class Pipeline:
         # test_duration
         self.test_duration = []
 
-        sample_num = 10 if self.dic_traffic_env_conf["NUM_INTERSECTIONS"]>=10 else min(self.dic_traffic_env_conf["NUM_INTERSECTIONS"], 9)
+        sample_num = 10 if self.dic_traffic_env_conf["NUM_INTERSECTIONS"] >= 10 else min(
+            self.dic_traffic_env_conf["NUM_INTERSECTIONS"], 9)
         print("sample_num for early stopping:", sample_num)
         self.sample_inter_id = random.sample(range(self.dic_traffic_env_conf["NUM_INTERSECTIONS"]), sample_num)
 
-
-    def early_stopping(self, dic_path, cnt_round): # Todo multi-process
+    def early_stopping(self, dic_path, cnt_round):  # Todo multi-process
         print("decide whether to stop")
         early_stopping_start_time = time.time()
-        record_dir = os.path.join(dic_path["PATH_TO_WORK_DIRECTORY"], "test_round", "round_"+str(cnt_round))
+        record_dir = os.path.join(dic_path["PATH_TO_WORK_DIRECTORY"], "test_round", "round_" + str(cnt_round))
 
         ave_duration_all = []
         # compute duration
@@ -163,7 +165,7 @@ class Pipeline:
         ave_duration = np.mean(ave_duration_all)
         self.test_duration.append(ave_duration)
         early_stopping_end_time = time.time()
-        print("early_stopping time: {0}".format(early_stopping_end_time - early_stopping_start_time) )
+        print("early_stopping time: {0}".format(early_stopping_end_time - early_stopping_start_time))
         if len(self.test_duration) < 30:
             return 0
         else:
@@ -171,12 +173,10 @@ class Pipeline:
             mean_duration = np.mean(duration_under_exam)
             std_duration = np.std(duration_under_exam)
             max_duration = np.max(duration_under_exam)
-            if std_duration/mean_duration < 0.1 and max_duration < 1.5 * mean_duration:
+            if std_duration / mean_duration < 0.1 and max_duration < 1.5 * mean_duration:
                 return 1
             else:
                 return 0
-
-
 
     def generator_wrapper(self, cnt_round, cnt_gen, dic_path, dic_exp_conf, dic_agent_conf, dic_traffic_env_conf,
                           best_round=None):
@@ -193,7 +193,8 @@ class Pipeline:
         print("generator_wrapper end")
         return
 
-    def updater_wrapper(self, cnt_round, dic_agent_conf, dic_exp_conf, dic_traffic_env_conf, dic_path, best_round=None, bar_round=None):
+    def updater_wrapper(self, cnt_round, dic_agent_conf, dic_exp_conf, dic_traffic_env_conf, dic_path, best_round=None,
+                        bar_round=None):
 
         updater = Updater(
             cnt_round=cnt_round,
@@ -203,7 +204,7 @@ class Pipeline:
             dic_path=dic_path,
             best_round=best_round,
             bar_round=bar_round
-        ) 
+        )
 
         updater.load_sample_for_agents()
         updater.update_network_for_agents()
@@ -215,10 +216,9 @@ class Pipeline:
         model_pool.model_compare(cnt_round)
         model_pool.dump_model_pool()
 
-
         return
-        #self.best_round = model_pool.get()
-        #print("self.best_round", self.best_round)
+        # self.best_round = model_pool.get()
+        # print("self.best_round", self.best_round)
 
     def downsample(self, path_to_log, i):
 
@@ -241,10 +241,10 @@ class Pipeline:
             except Exception as e:
                 # print("CANNOT READ %s"%path_to_pkl)
                 print("----------------------------")
-                print("Error occurs when READING pickles when down sampling for inter {0}, {1}".format(i, f_logging_data))
+                print(
+                    "Error occurs when READING pickles when down sampling for inter {0}, {1}".format(i, f_logging_data))
                 print('traceback.format_exc():\n%s' % traceback.format_exc())
                 print("----------------------------")
-
 
     def downsample_for_system(self, path_to_log, dic_traffic_env_conf):
         for i in range(dic_traffic_env_conf['NUM_INTERSECTIONS']):
@@ -268,27 +268,26 @@ class Pipeline:
         for t in process_list:
             t.join()
 
-    def construct_sample_batch(self, cs, start,stop):
+    def construct_sample_batch(self, cs, start, stop):
         for inter_id in range(start, stop):
             print("make construct_sample_wrapper for ", inter_id)
             cs.make_reward(inter_id)
-        
 
     def run(self, multi_process=False):
 
         best_round, bar_round = None, None
 
-        f_time = open(os.path.join(self.dic_path["PATH_TO_WORK_DIRECTORY"],"running_time.csv"),"w")
+        f_time = open(os.path.join(self.dic_path["PATH_TO_WORK_DIRECTORY"], "running_time.csv"), "w")
         f_time.write("generator_time\tmaking_samples_time\tupdate_network_time\ttest_evaluation_times\tall_times\n")
         f_time.close()
 
         if self.dic_exp_conf["PRETRAIN"]:
-            if os.listdir(self.dic_path["PATH_TO_PRETRAIN_MODEL"]): 
+            if os.listdir(self.dic_path["PATH_TO_PRETRAIN_MODEL"]):
                 for i in range(self.dic_traffic_env_conf["NUM_AGENTS"]):
-                    #TODO:only suitable for CoLight
+                    # TODO:only suitable for CoLight
                     shutil.copy(os.path.join(self.dic_path["PATH_TO_PRETRAIN_MODEL"],
-                                            "round_0_inter_%d.h5" % i),
-                                os.path.join(self.dic_path["PATH_TO_MODEL"], "round_0_inter_%d.h5"%i))
+                                             "round_0_inter_%d.h5" % i),
+                                os.path.join(self.dic_path["PATH_TO_MODEL"], "round_0_inter_%d.h5" % i))
             else:
                 if not os.listdir(self.dic_path["PATH_TO_PRETRAIN_WORK_DIRECTORY"]):
                     for cnt_round in range(self.dic_exp_conf["PRETRAIN_NUM_ROUNDS"]):
@@ -329,7 +328,7 @@ class Pipeline:
                             os.makedirs(train_round)
                         cs = ConstructSample(path_to_samples=train_round, cnt_round=cnt_round,
                                              dic_traffic_env_conf=self.dic_traffic_env_conf)
-                        cs.make_reward() # make_reward_for_system
+                        cs.make_reward()  # make_reward_for_system
 
                 if self.dic_exp_conf["MODEL_NAME"] in self.dic_exp_conf["LIST_MODEL_NEED_TO_UPDATE"]:
                     if multi_process:
@@ -425,7 +424,6 @@ class Pipeline:
                                  dic_traffic_env_conf=self.dic_traffic_env_conf)
             cs.make_reward_for_system()
 
-
             # EvaluateSample()
             making_samples_end_time = time.time()
             making_samples_total_time = making_samples_end_time - making_samples_start_time
@@ -460,11 +458,11 @@ class Pipeline:
                     path_to_log = os.path.join(self.dic_path["PATH_TO_WORK_DIRECTORY"], "train_round",
                                                "round_" + str(cnt_round), "generator_" + str(cnt_gen))
                     try:
-                        self.downsample_for_system(path_to_log,self.dic_traffic_env_conf)
+                        self.downsample_for_system(path_to_log, self.dic_traffic_env_conf)
                     except Exception as e:
                         print("----------------------------")
                         print("Error occurs when downsampling for round {0} generator {1}".format(cnt_round, cnt_gen))
-                        print("traceback.format_exc():\n%s"%traceback.format_exc())
+                        print("traceback.format_exc():\n%s" % traceback.format_exc())
                         print("----------------------------")
             update_network_end_time = time.time()
             update_network_total_time = update_network_end_time - update_network_start_time
@@ -473,12 +471,14 @@ class Pipeline:
             test_evaluation_start_time = time.time()
             if multi_process:
                 p = Process(target=model_test.test,
-                            args=(self.dic_path["PATH_TO_MODEL"], cnt_round, self.dic_exp_conf["RUN_COUNTS"], self.dic_traffic_env_conf, False))
+                            args=(self.dic_path["PATH_TO_MODEL"], cnt_round, self.dic_exp_conf["RUN_COUNTS"],
+                                  self.dic_traffic_env_conf, False))
                 p.start()
                 if self.dic_exp_conf["EARLY_STOP"]:
                     p.join()
             else:
-                model_test.test(self.dic_path["PATH_TO_MODEL"], cnt_round, self.dic_exp_conf["RUN_COUNTS"], self.dic_traffic_env_conf, if_gui=False)
+                model_test.test(self.dic_path["PATH_TO_MODEL"], cnt_round, self.dic_exp_conf["RUN_COUNTS"],
+                                self.dic_traffic_env_conf, if_gui=False)
 
             test_evaluation_end_time = time.time()
             test_evaluation_total_time = test_evaluation_end_time - test_evaluation_start_time
@@ -533,16 +533,14 @@ class Pipeline:
 
             print("best_round: ", best_round)
 
-            print("Generator time: ",generator_total_time)
+            print("Generator time: ", generator_total_time)
             print("Making samples time:", making_samples_total_time)
             print("update_network time:", update_network_total_time)
             print("test_evaluation time:", test_evaluation_total_time)
 
-            print("round {0} ends, total_time: {1}".format(cnt_round, time.time()-round_start_time))
-            f_time = open(os.path.join(self.dic_path["PATH_TO_WORK_DIRECTORY"],"running_time.csv"),"a")
-            f_time.write("{0}\t{1}\t{2}\t{3}\t{4}\n".format(generator_total_time,making_samples_total_time,
-                                                          update_network_total_time,test_evaluation_total_time,
-                                                          time.time()-round_start_time))
+            print("round {0} ends, total_time: {1}".format(cnt_round, time.time() - round_start_time))
+            f_time = open(os.path.join(self.dic_path["PATH_TO_WORK_DIRECTORY"], "running_time.csv"), "a")
+            f_time.write("{0}\t{1}\t{2}\t{3}\t{4}\n".format(generator_total_time, making_samples_total_time,
+                                                            update_network_total_time, test_evaluation_total_time,
+                                                            time.time() - round_start_time))
             f_time.close()
-
-

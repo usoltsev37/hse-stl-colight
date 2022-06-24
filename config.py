@@ -1,29 +1,29 @@
 # parameters and paths
+from CoLight_agent import CoLightAgent
+# from sumo_env import SumoEnv
+from anon_env import AnonEnv
 from baseline.deeplight_agent import DeeplightAgent
 from baseline.fixedtime_agent import FixedtimeAgent
 from baseline.fixedtimeoffset_agent import FixedtimeOffsetAgent
 from baseline.formula_agent import FormulaAgent
 from baseline.maxpressure_agent import MaxPressureAgent
-from simple_dqn_agent import SimpleDQNAgent
 from baseline.random_agent import RandomAgent
+from baseline.sliding_formula_agent import SlidingFormulaAgent
 from baseline.sotl_agent import SOTLAgent
-from CoLight_agent import CoLightAgent
+from lit_agent import LitAgent
+from simple_dqn_agent import SimpleDQNAgent
 # from gcn_agent import GCNAgent
 from simple_dqn_one_agent import SimpleDQNOneAgent
-from lit_agent import LitAgent
-# from sumo_env import SumoEnv
-from anon_env import AnonEnv
-from baseline.sliding_formula_agent import SlidingFormulaAgent
 
-DIC_SLIDINGFORMULA_AGENT_CONF = { 
-    "DAY_TIME": 3600, 
-    "UPDATE_PERIOD": 300, 
-    "FIXED_TIME": [30, 30], 
-    "ROUND_UP": 5, 
+DIC_SLIDINGFORMULA_AGENT_CONF = {
+    "DAY_TIME": 3600,
+    "UPDATE_PERIOD": 300,
+    "FIXED_TIME": [30, 30],
+    "ROUND_UP": 5,
     "PHASE_TO_LANE": [[0, 1], [3, 4], [6, 7], [9, 10]],
-    "MIN_PHASE_TIME": 5, 
-    "TRAFFIC_FILE": [ "cross.2phases_rou01_equal_450.xml" ]
-    }
+    "MIN_PHASE_TIME": 5,
+    "TRAFFIC_FILE": ["cross.2phases_rou01_equal_450.xml"]
+}
 
 DIC_SOTL_AGENT_CONF = {
     "PHI": 5,
@@ -42,7 +42,7 @@ DIC_EXP_CONF = {
     "LIST_MODEL":
         ["Fixedtime", "SOTL", "Deeplight", "SimpleDQN"],
     "LIST_MODEL_NEED_TO_UPDATE":
-        ["Deeplight", "SimpleDQN", "CoLight","GCN", "SimpleDQNOne","Lit"],
+        ["Deeplight", "SimpleDQN", "CoLight", "GCN", "SimpleDQNOne", "Lit"],
     "MODEL_POOL": False,
     "NUM_BEST_MODEL": 3,
     "PRETRAIN": True,
@@ -86,7 +86,6 @@ DIC_LIT_AGENT_CONF = {
     "EARLY_STOP_LOSS": "val_loss",
     "DROPOUT_RATE": 0
 }
-
 
 DIC_FIXEDTIME_AGENT_CONF = {
     "FIXED_TIME": [
@@ -139,8 +138,8 @@ dic_traffic_env_conf = {
         D_LANE_QUEUE_LENGTH=(4,),
         D_LANE_NUM_VEHICLE=(4,),
 
-        D_COMING_VEHICLE = (4,),
-        D_LEAVING_VEHICLE = (4,),
+        D_COMING_VEHICLE=(4,),
+        D_LEAVING_VEHICLE=(4,),
 
         D_LANE_NUM_VEHICLE_BEEN_STOPPED_THRES1=(4,),
         D_CUR_PHASE=(1,),
@@ -307,9 +306,9 @@ DIC_MAXPRESSURE_AGENT_CONF = {
 }
 
 DIC_COLIGHT_AGENT_CONF = {
-    "CNN_layers":[[32,32]],#,[32,32],[32,32],[32,32]],
-    "att_regularization":False,
-    "rularization_rate":0.03,
+    "CNN_layers": [[32, 32]],  # ,[32,32],[32,32],[32,32]],
+    "att_regularization": False,
+    "rularization_rate": 0.03,
     "LEARNING_RATE": 0.001,
     "SAMPLE_SIZE": 1000,
     "BATCH_SIZE": 20,
@@ -321,7 +320,7 @@ DIC_COLIGHT_AGENT_CONF = {
     "PATIENCE": 10,
     "D_DENSE": 20,
     "N_LAYER": 2,
-    #special care for pretrain
+    # special care for pretrain
     "EPSILON": 0.8,
     "EPSILON_DECAY": 0.95,
     "MIN_EPSILON": 0.2,
@@ -345,9 +344,9 @@ CONNECTED:
         - IN_OUT: all the alnes that are connected to the target lane
 """
 DIC_COLIGHT_SIGNAL_AGENT_CONF = {
-    "CONNECTED":True,
-    "EXTERNAL":True,
-    "IN_OUT_MODE":["IN","OUT","IN_OUT"][0],
+    "CONNECTED": True,
+    "EXTERNAL": True,
+    "IN_OUT_MODE": ["IN", "OUT", "IN_OUT"][0],
     # "traffic_name":'Atlanta',#'LA' or 'Atlanta'
     "LEARNING_RATE": 0.001,
     "SAMPLE_SIZE": 1000,
@@ -360,7 +359,7 @@ DIC_COLIGHT_SIGNAL_AGENT_CONF = {
     "PATIENCE": 10,
     "D_DENSE": 20,
     "N_LAYER": 2,
-    #special care for pretrain
+    # special care for pretrain
     "EPSILON": 0.8,
     "EPSILON_DECAY": 0.95,
     "MIN_EPSILON": 0.2,
@@ -372,7 +371,7 @@ DIC_COLIGHT_SIGNAL_AGENT_CONF = {
 }
 
 DIC_GATREGU_AGENT_CONF = {
-    "rularization_rate":0.03,
+    "rularization_rate": 0.03,
     "LEARNING_RATE": 0.001,
     "SAMPLE_SIZE": 1000,
     "BATCH_SIZE": 20,
@@ -384,7 +383,7 @@ DIC_GATREGU_AGENT_CONF = {
     "PATIENCE": 10,
     "D_DENSE": 20,
     "N_LAYER": 2,
-    #special care for pretrain
+    # special care for pretrain
     "EPSILON": 0.8,
     "EPSILON_DECAY": 0.95,
     "MIN_EPSILON": 0.2,
@@ -397,9 +396,9 @@ DIC_GATREGU_AGENT_CONF = {
 
 DIC_STGAT_AGENT_CONF = {
     "PRIORITY": False,
-    "nan_code":True,
-    "att_regularization":False,
-    "rularization_rate":0.03,
+    "nan_code": True,
+    "att_regularization": False,
+    "rularization_rate": 0.03,
     "LEARNING_RATE": 0.001,
     "SAMPLE_SIZE": 1000,
     "BATCH_SIZE": 20,
@@ -411,7 +410,7 @@ DIC_STGAT_AGENT_CONF = {
     "PATIENCE": 10,
     "D_DENSE": 20,
     "N_LAYER": 2,
-    #special care for pretrain
+    # special care for pretrain
     "EPSILON": 0.8,
     "EPSILON_DECAY": 0.95,
     "MIN_EPSILON": 0.2,
@@ -432,9 +431,9 @@ DIC_GCN_AGENT_CONF = {
     "GAMMA": 0.8,
     "MAX_MEMORY_LEN": 10000,
     "PATIENCE": 10,
-    "D_DENSE": [20,20],
+    "D_DENSE": [20, 20],
     "N_LAYER": 2,
-    "DROPOUT":0,
+    "DROPOUT": 0,
     "EPSILON": 0.8,
     "EPSILON_DECAY": 0.95,
     "MIN_EPSILON": 0.2,
@@ -466,13 +465,13 @@ DIC_AGENTS = {
     # 'GCN': GCNAgent,
     'SimpleDQNOne': SimpleDQNOneAgent,
     "MaxPressure": MaxPressureAgent,
-    "Lit":LitAgent,
+    "Lit": LitAgent,
     'SOTL': SOTLAgent,
     'SlidingFormula': SlidingFormulaAgent
 }
 
 DIC_ENVS = {
-    "sumo": AnonEnv, #deprecated
+    "sumo": AnonEnv,  # deprecated
     # "sumo": SumoEnv,
     "anon": AnonEnv
 }
@@ -495,17 +494,17 @@ DIC_FIXEDTIME = {
     500: [15, 15],
     600: [28, 28],
     700: [53, 53]
-    }
+}
 
 # min_action_time: 1
 DIC_FIXEDTIME_NEW_SUMO = {
-        100: [4, 4],
-        200: [4, 4],
-        300: [5, 5],
-        400: [13, 13],
-        500: [9, 9],
-        600: [15, 15],
-        700: [22, 22]
+    100: [4, 4],
+    200: [4, 4],
+    300: [5, 5],
+    400: [13, 13],
+    500: [9, 9],
+    600: [15, 15],
+    700: [22, 22]
 }
 
 DIC_FIXEDTIME_MULTI_PHASE = {
@@ -519,7 +518,7 @@ DIC_FIXEDTIME_MULTI_PHASE = {
     750: [30 for _ in range(4)]
 }
 
-#DIC_FIXEDTIME_MULTI_PHASE = {
+# DIC_FIXEDTIME_MULTI_PHASE = {
 #    100: [2 for _ in range(4)],
 #    200: [2 for _ in range(4)],
 #    300: [1 for _ in range(4)],
@@ -527,9 +526,9 @@ DIC_FIXEDTIME_MULTI_PHASE = {
 #    500: [16 for _ in range(4)],
 #    600: [28 for _ in range(4)],
 #    700: [55 for _ in range(4)]
-#}
+# }
 
-#DIC_FIXEDTIME_MULTI_PHASE = {
+# DIC_FIXEDTIME_MULTI_PHASE = {
 #    100: [5, 5, 5, 5],
 #    200: [5, 5, 5, 5],
 #    300: [5, 5, 5, 5],
@@ -537,4 +536,4 @@ DIC_FIXEDTIME_MULTI_PHASE = {
 #    500: [20, 20, 20, 20],
 #    600: [35, 35, 35, 35],
 #    700: [50, 50, 50, 50]
-#}
+# }

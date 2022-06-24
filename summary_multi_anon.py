@@ -1,20 +1,19 @@
-import pickle as pkl
-import os
-import pandas as pd
-import numpy as np
-import json
-import copy
-from math import isnan
-import matplotlib as mlp
-import shutil
 import argparse
+import copy
+import json
+import os
+import pickle as pkl
+import shutil
 
 import matplotlib as mlp
+import numpy as np
+import pandas as pd
+
 mlp.use("agg")
 import matplotlib.pyplot as plt
 
-#font = {'size': 24}
-#mlp.rc('font', **font)
+# font = {'size': 24}
+# mlp.rc('font', **font)
 
 NAN_LABEL = -1
 
@@ -22,7 +21,7 @@ NAN_LABEL = -1
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("--memo", type=str, default='initial')
-    parser.add_argument("-b", action="store_true",default=False, help="run baseline analysis") ##
+    parser.add_argument("-b", action="store_true", default=False, help="run baseline analysis")  ##
     return parser.parse_args()
 
 
@@ -80,7 +79,6 @@ def get_metrics(duration_list, queue_length_list, min_duration, min_duration_id,
     inter_num = traffic_name.split('_')[0]
     vol = traffic_name.split('_')[3]
     ratio = traffic_name.split('_')[4]
-
 
     total_summary['inter_num'].append(inter_num)
     total_summary['traffic_volume'].append(vol)
@@ -184,7 +182,7 @@ def padding_duration(performance_duration):
     for traffic_name in performance_duration.keys():
         max_duration_length = max([len(x[0]) for x in performance_duration[traffic_name]])
         for i, ti in enumerate(performance_duration[traffic_name]):
-            performance_duration[traffic_name][i][0].extend((max_duration_length - len(ti[0]))*[ti[0][-1]])
+            performance_duration[traffic_name][i][0].extend((max_duration_length - len(ti[0])) * [ti[0][-1]])
 
     return performance_duration
 
@@ -210,7 +208,7 @@ def summary_detail_test(memo, total_summary):
         if ".xml" not in traffic_file and ".json" not in traffic_file:
             continue
 
-        #if "cross.2phases_rou01_equal_700.xml_12_11_08_16_00" != traffic_file:
+        # if "cross.2phases_rou01_equal_700.xml_12_11_08_16_00" != traffic_file:
         #    continue
         print(traffic_file)
 
@@ -222,15 +220,13 @@ def summary_detail_test(memo, total_summary):
         dic_exp_conf = json.load(exp_conf)
         print(dic_exp_conf)
 
-
         traffic_env_conf = open(os.path.join(records_dir, traffic_file, "traffic_env.conf"), 'r')
         dic_traffic_env_conf = json.load(traffic_env_conf)
         run_counts = dic_exp_conf["RUN_COUNTS"]
         num_rounds = dic_exp_conf["NUM_ROUNDS"]
         time_interval = 120
-        num_seg = run_counts//time_interval
+        num_seg = run_counts // time_interval
         num_intersection = dic_traffic_env_conf['NUM_INTERSECTIONS']
-
 
         traffic_vol = get_traffic_volume(dic_exp_conf["TRAFFIC_FILE"][0], run_counts)
         nan_thres = 120
@@ -272,17 +268,19 @@ def summary_detail_test(memo, total_summary):
                     samples = pkl.load(f)
                     queue_length_each_inter_each_round = 0
                     for sample in samples:
-                        queue_length_each_inter_each_round += sum(sample['state']['lane_num_vehicle_been_stopped_thres1'])
-                    queue_length_each_inter_each_round = queue_length_each_inter_each_round//len(samples)
+                        queue_length_each_inter_each_round += sum(
+                            sample['state']['lane_num_vehicle_been_stopped_thres1'])
+                    queue_length_each_inter_each_round = queue_length_each_inter_each_round // len(samples)
                     f.close()
 
                     # summary items (duration) from csv
                     df_vehicle_inter = pd.read_csv(os.path.join(round_dir, "vehicle_inter_{0}.csv".format(inter_index)),
-                                                     sep=',', header=0, dtype={0: str, 1: float, 2: float},
-                                                     names=["vehicle_id", "enter_time", "leave_time"])
+                                                   sep=',', header=0, dtype={0: str, 1: float, 2: float},
+                                                   names=["vehicle_id", "enter_time", "leave_time"])
                     df_vehicle_inter['leave_time_origin'] = df_vehicle_inter['leave_time']
-                    df_vehicle_inter['leave_time'].fillna(run_counts,inplace=True)
-                    df_vehicle_inter['duration'] = df_vehicle_inter["leave_time"].values - df_vehicle_inter["enter_time"].values
+                    df_vehicle_inter['leave_time'].fillna(run_counts, inplace=True)
+                    df_vehicle_inter['duration'] = df_vehicle_inter["leave_time"].values - df_vehicle_inter[
+                        "enter_time"].values
                     ave_duration = df_vehicle_inter['duration'].mean(skipna=True)
                     print("------------- inter_index: {0}\tave_duration: {1}\tave_queue_length:{2}"
                           .format(inter_index, ave_duration, queue_length_each_inter_each_round))
@@ -319,7 +317,7 @@ def summary_detail_test(memo, total_summary):
                     # num_of_vehicle_in.append(NAN_LABEL)
                     # num_of_vehicle_out.append(NAN_LABEL)
 
-            if len(df_vehicle_all)==0:
+            if len(df_vehicle_all) == 0:
                 print("====================================EMPTY")
                 continue
 
@@ -331,17 +329,16 @@ def summary_detail_test(memo, total_summary):
             duration_each_round_list.append(ave_duration)
             queue_length_each_round_list.append(ave_queue_length)
 
-
             num_of_vehicle_in.append(len(df_vehicle_all['vehicle_id'].unique()))
             num_of_vehicle_out.append(len(df_vehicle_all.dropna()['vehicle_id'].unique()))
 
             print("==== round: {0}\tave_duration: {1}\tave_queue_length_per_intersection:{2}\t"
                   "num_of_vehicle_in:{3}\tnum_of_vehicle_out:{4}"
-                  .format(round, ave_duration,ave_queue_length,num_of_vehicle_in[-1],num_of_vehicle_out[-1]))
+                  .format(round, ave_duration, ave_queue_length, num_of_vehicle_in[-1], num_of_vehicle_out[-1]))
 
             duration_flow = vehicle_duration.reset_index()
 
-            duration_flow['direction'] = duration_flow['vehicle_id'].apply(lambda x:x.split('_')[1])
+            duration_flow['direction'] = duration_flow['vehicle_id'].apply(lambda x: x.split('_')[1])
             duration_flow_ave = duration_flow.groupby(by=['direction'])['duration'].mean()
             print(duration_flow_ave)
 
@@ -356,18 +353,17 @@ def summary_detail_test(memo, total_summary):
             #         min_duration = ave_duration
             #         min_duration_ind = int(round[6:])
 
-
             #### This is for long time
 
             if num_seg > 1:
                 for i, interval in enumerate(range(0, run_counts, time_interval)):
-                    did = df_vehicle_all[(df_vehicle_all["enter_time"]< interval+time_interval) &
+                    did = df_vehicle_all[(df_vehicle_all["enter_time"] < interval + time_interval) &
                                          (df_vehicle_all["enter_time"].values > interval)]
-                    #vehicle_in_seg = sum([int(x) for x in (df_vehicle_inter_0["enter_time"][did].values > 0)])
-                    #vehicle_out_seg = sum([int(x) for x in (df_vehicle_inter_0["leave_time"][did].values > 0)])
+                    # vehicle_in_seg = sum([int(x) for x in (df_vehicle_inter_0["enter_time"][did].values > 0)])
+                    # vehicle_out_seg = sum([int(x) for x in (df_vehicle_inter_0["leave_time"][did].values > 0)])
 
                     vehicle_duration_seg = did.groupby(by=['vehicle_id'])['duration'].sum()
-                    ave_duration_seg = vehicle_duration_seg[vehicle_duration_seg>10].mean()
+                    ave_duration_seg = vehicle_duration_seg[vehicle_duration_seg > 10].mean()
                     # print(traffic_file, round, i, ave_duration)
                     # real_traffic_vol_seg = 0
                     # nan_num_seg = 0
@@ -384,7 +380,7 @@ def summary_detail_test(memo, total_summary):
                         list_duration_seg[i] = ave_duration_seg
                         list_duration_id_seg[i] = int(round[6:])
 
-                    #round_summary = {}
+                    # round_summary = {}
                 for j in range(num_seg):
                     key = "min_duration-" + str(j)
 
@@ -392,10 +388,9 @@ def summary_detail_test(memo, total_summary):
                         round_summary[key] = [list_duration_seg[j]]
                     else:
                         round_summary[key].append(list_duration_seg[j])
-                #round_result_dir = os.path.join("summary", memo, traffic_file)
-                #if not os.path.exists(round_result_dir):
+                # round_result_dir = os.path.join("summary", memo, traffic_file)
+                # if not os.path.exists(round_result_dir):
                 #    os.makedirs(round_result_dir)
-
 
         # result_dir = os.path.join(records_dir, traffic_file)
         result_dir = os.path.join("summary", memo, traffic_file)
@@ -426,7 +421,6 @@ def summary_detail_test(memo, total_summary):
             else:
                 performance_at_min_duration_round[traffic_name].append((duration_each_segment_list, traffic_time))
 
-
         # print(os.path.join(result_dir, "test_results.csv"))
 
         # total_summary
@@ -441,10 +435,8 @@ def summary_detail_test(memo, total_summary):
         else:
             performance_duration[traffic_name].append((duration_each_round_list, traffic_time))
 
-
         total_result = pd.DataFrame(total_summary)
         total_result.to_csv(os.path.join("summary", memo, "total_test_results.csv"))
-
 
     figure_dir = os.path.join("summary", memo, "figures")
     if not os.path.exists(figure_dir):
@@ -457,14 +449,12 @@ def summary_detail_test(memo, total_summary):
 
 ##TODO multi-intersection
 def summary_detail_baseline(memo):
-
     DETAIL_ARTERIAL = True
     total_summary = []
 
     records_dir = os.path.join("records", memo)
     for traffic_file in os.listdir(records_dir):
         ANON_ENV = False
-
 
         if ".xml" not in traffic_file and "anon" not in traffic_file:
             continue
@@ -486,7 +476,7 @@ def summary_detail_baseline(memo):
                 dic_agent_conf = json.load(agent_conf)
 
             df_vehicle = []
-            NUM_OF_INTERSECTIONS = int(traffic_file.split('_')[1])*int(traffic_file.split('_')[2])
+            NUM_OF_INTERSECTIONS = int(traffic_file.split('_')[1]) * int(traffic_file.split('_')[2])
 
             list_f = ["inter_%d.pkl" % i for i in range(int(NUM_OF_INTERSECTIONS))]
 
@@ -494,14 +484,14 @@ def summary_detail_baseline(memo):
                 pressure_each_inter = 0
 
                 node_index = f.split('inter_')[1].split('.pkl')[0]
-                print("node",node_index)
+                print("node", node_index)
                 f = open(os.path.join(train_dir, f), "rb")
                 samples = pkl.load(f)
                 for sample in samples:
                     pressure_each_inter += sum((sample['state']['lane_num_vehicle_been_stopped_thres1']))
                 f.close()
 
-                pressure_each_inter = pressure_each_inter/len(samples)
+                pressure_each_inter = pressure_each_inter / len(samples)
                 avg_pressure += pressure_each_inter
 
                 vehicle_csv = "vehicle_inter_{0}.csv".format(node_index)
@@ -513,46 +503,49 @@ def summary_detail_baseline(memo):
                 # print(df_vehicle_inter_0)
 
                 if ANON_ENV:
-                    flow_car = pd.DataFrame(df_vehicle_inter_0['vehicle_id'].str.split('_', -1).tolist(), columns=['flow','flow_id', 'car_id'])
+                    flow_car = pd.DataFrame(df_vehicle_inter_0['vehicle_id'].str.split('_', -1).tolist(),
+                                            columns=['flow', 'flow_id', 'car_id'])
                 else:
-                    flow_car = pd.DataFrame(df_vehicle_inter_0['vehicle_id'].str.split('.', 1).tolist(), columns=['flow_id', 'car_id'])
+                    flow_car = pd.DataFrame(df_vehicle_inter_0['vehicle_id'].str.split('.', 1).tolist(),
+                                            columns=['flow_id', 'car_id'])
                 df_vehicle_inter_0 = pd.concat([flow_car, df_vehicle_inter_0], axis=1)
-                df_vehicle_inter_0.fillna(run_counts,inplace=True)
+                df_vehicle_inter_0.fillna(run_counts, inplace=True)
                 df_vehicle_inter_0['duration'] = df_vehicle_inter_0["leave_time"] - df_vehicle_inter_0["enter_time"]
 
-
                 df_vehicle.append(df_vehicle_inter_0)
-                print(df_vehicle_inter_0.groupby(['flow_id'])['duration'].mean()) # mean for every intersection
+                print(df_vehicle_inter_0.groupby(['flow_id'])['duration'].mean())  # mean for every intersection
 
-            df_vehicle = pd.concat(df_vehicle,axis=0)
+            df_vehicle = pd.concat(df_vehicle, axis=0)
 
             flow_df = df_vehicle.groupby(['flow_id', 'car_id']).sum()
             arterial_duration = 0
             side_street_duration = 0
             if DETAIL_ARTERIAL:
                 detail_arterial = flow_df.groupby('flow_id').mean()
-                save_path = os.path.join('records',memo, traffic_file).replace("records","summary")
+                save_path = os.path.join('records', memo, traffic_file).replace("records", "summary")
                 if not os.path.exists(save_path):
                     os.makedirs(save_path)
                 detail_arterial.to_csv(os.path.join(save_path, 'flow.csv'))
                 arterial_duration = np.average(detail_arterial[:2])
                 side_street_duration = np.average(detail_arterial[3:])
-                avg_pressure = avg_pressure/NUM_OF_INTERSECTIONS
+                avg_pressure = avg_pressure / NUM_OF_INTERSECTIONS
 
-
-            car_num_out_df = df_vehicle.groupby(by=['flow_id', 'car_id'])['leave_time'].apply(lambda x: x.shape[0] != x.count())
+            car_num_out_df = df_vehicle.groupby(by=['flow_id', 'car_id'])['leave_time'].apply(
+                lambda x: x.shape[0] != x.count())
             car_num_out = car_num_out_df[car_num_out_df].count()
 
             ave_duration_all = flow_df['duration'].mean()
-            total_summary.append([traffic_file,ave_duration_all, avg_pressure,flow_df.shape[0],car_num_out,dic_agent_conf["FIXED_TIME"],arterial_duration,side_street_duration])
+            total_summary.append([traffic_file, ave_duration_all, avg_pressure, flow_df.shape[0], car_num_out,
+                                  dic_agent_conf["FIXED_TIME"], arterial_duration, side_street_duration])
         else:
             shutil.rmtree(train_dir)
 
     total_summary = pd.DataFrame(total_summary)
     total_summary.sort_values([0], ascending=[True], inplace=True)
-    total_summary.columns = ['TRAFFIC','DURATION','PRESSURE','CAR_NUMBER_IN','CAR_NUMBER_OUT','CONFIG','ARTERIAL','SIDE_STREET']
-    total_summary.to_csv(os.path.join("records", memo, "total_baseline_results.txt").replace("records", "summary"),sep='\t',index=False)
-
+    total_summary.columns = ['TRAFFIC', 'DURATION', 'PRESSURE', 'CAR_NUMBER_IN', 'CAR_NUMBER_OUT', 'CONFIG', 'ARTERIAL',
+                             'SIDE_STREET']
+    total_summary.to_csv(os.path.join("records", memo, "total_baseline_results.txt").replace("records", "summary"),
+                         sep='\t', index=False)
 
 
 # def main(memo=None):
@@ -634,7 +627,9 @@ def print_samples():
     #     print('\n')
     # f.close()
 
-    f=open("/Users/chenchacha/RLSignal/records/test_pressure/2_intersections_uniform_300_0.3_uni.xml_12_20_03_14_11/train_round/total_samples_inter_0.pkl","rb")
+    f = open(
+        "/Users/chenchacha/RLSignal/records/test_pressure/2_intersections_uniform_300_0.3_uni.xml_12_20_03_14_11/train_round/total_samples_inter_0.pkl",
+        "rb")
     samples = []
     try:
         while 1:
@@ -646,10 +641,10 @@ def print_samples():
     count = 0
     for round in samples:
         print(count)
-        count +=1
+        count += 1
         for sample in round:
             print(sample)
-    #for sample in samples:
+    # for sample in samples:
     #    print(sample)
     f.close()
 
@@ -657,9 +652,9 @@ def print_samples():
 if __name__ == "__main__":
     total_summary = {
         "traffic": [],
-        "inter_num":[],
-        "traffic_volume":[],
-        "ratio":[],
+        "inter_num": [],
+        "traffic_volume": [],
+        "ratio": [],
         "min_queue_length": [],
         "min_queue_length_round": [],
         "min_duration": [],
@@ -672,9 +667,6 @@ if __name__ == "__main__":
         "min_duration2": []
     }
 
-
-
-
     memo = "multi_phase/multi_phase_12_12_600_700_layer_10"
 
     args = parse_args()
@@ -684,7 +676,3 @@ if __name__ == "__main__":
         summary_detail_baseline(args.memo)
     else:
         summary_detail_test(args.memo, copy.deepcopy(total_summary))
-
-
-
-

@@ -1,5 +1,6 @@
-import run_baseline
 import summary
+
+import run_baseline
 
 memo = "multi_phase/sumo/fixedtime_no_change_lane_optimal"
 run_baseline.main(memo)

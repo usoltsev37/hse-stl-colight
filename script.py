@@ -15,6 +15,6 @@ def get_traffic_volume(traffic_file):
 
         vol = min(max(volume_list[0:2]), max(volume_list[2:]))
 
-        return int(vol/100)*100
+        return int(vol / 100) * 100
     elif "anon" in traffic_file:
         return int(traffic_file.split('_')[3].split('.')[0])
