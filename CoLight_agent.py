@@ -12,12 +12,12 @@ import keras
 from keras import backend as K
 from keras.optimizers import Adam, RMSprop
 import tensorflow as tf
-from keras.layers import Dense, Dropout, Conv2D, Input, Lambda, Flatten, TimeDistributed, merge
+from keras.layers import Dense, Dropout, Conv2D, Input, Lambda, Flatten, TimeDistributed
 from keras.layers import Add, Reshape, MaxPooling2D, Concatenate, Embedding, RepeatVector
 from keras.models import Model, model_from_json, load_model
 from keras.layers.core import Activation
 from keras.utils import np_utils,to_categorical
-from keras.engine.topology import Layer
+from keras.layers import Layer
 from keras.callbacks import EarlyStopping, TensorBoard
 
 # SEED=6666
@@ -214,6 +214,8 @@ class CoLightAgent(Agent):
         #[batch,agent,1,dim]->[batch,agent,1,dv*nv]
         agent_repr_head=Dense(dv*nv,activation='relu',kernel_initializer='random_normal',name='agent_repr_%d'%suffix)(agent_repr)
         #[batch,agent,1,dv,nv]->[batch,agent,nv,1,dv]
+        print(f"---- agent_repr_head {agent_repr_head.shape} -----")
+        print(f"---- (self.num_agents,1,dv,nv) {(self.num_agents,1,dv,nv)} -----")
         agent_repr_head=Reshape((self.num_agents,1,dv,nv))(agent_repr_head)
         agent_repr_head=Lambda(lambda x:K.permute_dimensions(x,(0,1,4,2,3)))(agent_repr_head)
         #agent_repr_head=Lambda(lambda x:K.permute_dimensions(K.reshape(x,(-1,self.num_agents,1,dv,nv)),(0,1,4,2,3)))(agent_repr_head)

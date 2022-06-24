@@ -812,9 +812,15 @@ class AnonEnv:
 
         with open(os.path.join(self.path_to_work_directory,"cityflow.config"), "w") as json_file:
             json.dump(cityflow_config, json_file)
+
+        print(f"=========== self.path_to_work_directory: {self.path_to_work_directory} =============")
+        print(os.path.join(self.path_to_work_directory,"cityflow.config"))
+
         self.eng = engine.Engine(os.path.join(self.path_to_work_directory,"cityflow.config"), thread_num=1)
         # self.load_roadnet()
         # self.load_flow()
+
+        # assert (False)
 
 
         # get adjacency

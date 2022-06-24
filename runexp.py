@@ -55,7 +55,7 @@ def parse_args():
     #modify:TOP_K_ADJACENCY in line 154
     global PRETRAIN
     PRETRAIN=False
-    parser.add_argument("--mod", type=str, default='CoLight')#SimpleDQN,SimpleDQNOne,GCN,CoLight,Lit
+    parser.add_argument("--mod", type=str, default='SimpleDQN') #SimpleDQN,SimpleDQNOne,GCN,CoLight,Lit
     parser.add_argument("--cnt",type=int, default=3600)#3600
     parser.add_argument("--gen",type=int, default=4)#4
 

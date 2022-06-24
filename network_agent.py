@@ -7,7 +7,7 @@ from keras.layers.core import Dropout
 from keras.layers.pooling import MaxPooling2D
 from keras import backend as K
 import random
-from keras.engine.topology import Layer
+from keras.layers import Layer
 import os
 from keras.callbacks import EarlyStopping, TensorBoard
 
@@ -269,8 +269,10 @@ class NetworkAgent(Agent):
                 _state.append([state[feature_name]])
                 _next_state.append([next_state[feature_name]])
             target = self.q_network.predict(_state)
+            # target = self.q_network.predict([np.array(s) for s in _state])
 
             next_state_qvalues = self.q_network_bar.predict(_next_state)
+            # next_state_qvalues = self.q_network_bar.predict([np.array(s) for s in _next_state])
 
             if self.dic_agent_conf["LOSS_FUNCTION"] == "mean_squared_error":
                 final_target = np.copy(target[0])

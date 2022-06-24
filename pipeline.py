@@ -329,7 +329,7 @@ class Pipeline:
                             os.makedirs(train_round)
                         cs = ConstructSample(path_to_samples=train_round, cnt_round=cnt_round,
                                              dic_traffic_env_conf=self.dic_traffic_env_conf)
-                        cs.make_reward()
+                        cs.make_reward() # make_reward_for_system
 
                 if self.dic_exp_conf["MODEL_NAME"] in self.dic_exp_conf["LIST_MODEL_NEED_TO_UPDATE"]:
                     if multi_process:
