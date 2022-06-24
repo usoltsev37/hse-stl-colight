@@ -19,7 +19,7 @@ class SimpleDQNAgent(NetworkAgent):
                 _shape = self.dic_traffic_env_conf["DIC_FEATURE_DIM"]["D_" + feature_name.upper()]
             else:
                 _shape = (
-                self.dic_traffic_env_conf["DIC_FEATURE_DIM"]["D_" + feature_name.upper()][0] * self.num_lanes,)
+                    self.dic_traffic_env_conf["DIC_FEATURE_DIM"]["D_" + feature_name.upper()][0] * self.num_lanes,)
                 # _shape = (self.dic_traffic_env_conf["DIC_FEATURE_DIM"]["D_"+feature_name.upper()])
             dic_input_node[feature_name] = Input(shape=_shape,
                                                  name="input_" + feature_name)

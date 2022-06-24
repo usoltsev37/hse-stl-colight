@@ -156,7 +156,7 @@ class CoLightAgent(Agent):
                 len_feature += self.dic_traffic_env_conf["DIC_FEATURE_DIM"]["D_" + feature_name.upper()]
             elif feature_name == "lane_num_vehicle":
                 len_feature += (
-                self.dic_traffic_env_conf["DIC_FEATURE_DIM"]["D_" + feature_name.upper()][0] * self.num_lanes,)
+                    self.dic_traffic_env_conf["DIC_FEATURE_DIM"]["D_" + feature_name.upper()][0] * self.num_lanes,)
         return sum(len_feature)
 
     """

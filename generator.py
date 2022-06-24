@@ -18,6 +18,8 @@ class Generator:
         self.agents = [None] * dic_traffic_env_conf['NUM_AGENTS']
 
         if self.dic_exp_conf["PRETRAIN"]:
+            raise RuntimeError('self.dic_exp_conf["PRETRAIN"] must be False')
+        if self.dic_exp_conf["PRETRAIN"]:
             self.path_to_log = os.path.join(self.dic_path["PATH_TO_PRETRAIN_WORK_DIRECTORY"], "train_round",
                                             "round_" + str(self.cnt_round), "generator_" + str(self.cnt_gen))
         else:
@@ -35,6 +37,8 @@ class Generator:
         # every generator's output
         # generator for pretraining
         # Todo pretrain with intersection_id
+        if self.dic_exp_conf["PRETRAIN"]:
+            raise RuntimeError('self.dic_exp_conf["PRETRAIN"] must be False')
         if self.dic_exp_conf["PRETRAIN"]:
 
             self.agent_name = self.dic_exp_conf["PRETRAIN_MODEL_NAME"]
@@ -120,7 +124,8 @@ class Generator:
 
         log_start_time = time.time()
         print("start logging")
-        self.env.bulk_log_multi_process()
+        self.env.bulk_log()
+        # self.env.bulk_log_multi_process()
         log_time = time.time() - log_start_time
 
         self.env.end_sumo()

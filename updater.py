@@ -2,6 +2,7 @@ import os
 import pickle
 import random
 import shutil
+import sys
 import time
 import traceback
 
@@ -192,8 +193,8 @@ class Updater:
         start_time = time.time()
         print("Start load samples at", start_time)
         if self.dic_exp_conf['MODEL_NAME'] not in ["GCN", "CoLight"]:
-            if self.dic_traffic_env_conf["ONE_MODEL"] or self.dic_exp_conf['MODEL_NAME'] in [
-                "SimpleDQNOne"]:  # for one model
+            # for one model
+            if self.dic_traffic_env_conf["ONE_MODEL"] or self.dic_exp_conf['MODEL_NAME'] in ["SimpleDQNOne"]:
                 sample_set_all = []
                 for i in range(self.dic_traffic_env_conf['NUM_INTERSECTIONS']):
                     sample_set = self.load_sample_with_forget(i)
@@ -206,6 +207,8 @@ class Updater:
                     sample_set = self.load_sample(i)
                     self.agents[i].prepare_Xs_Y(sample_set, self.dic_exp_conf)
         else:
+            raise RuntimeError(f"NOT IMPLEMENTED FOR {self.dic_exp_conf['MODEL_NAME']}")
+            sys.exit()
             samples_gcn_df = None
             if False:  # Todo decide multi-process
                 for i in range(self.dic_traffic_env_conf['NUM_INTERSECTIONS']):
@@ -297,6 +300,7 @@ class Updater:
         print('update agent %d' % i)
         self.agents[i].train_network(self.dic_exp_conf)
         if self.dic_traffic_env_conf["ONE_MODEL"]:
+            raise RuntimeError('self.dic_traffic_env_conf["ONE_MODEL"] must be False')
             if self.dic_exp_conf["PRETRAIN"]:
                 self.agents[i].q_network.save(os.path.join(self.dic_path["PATH_TO_PRETRAIN_MODEL"],
                                                            "{0}.h5".format(self.dic_exp_conf["TRAFFIC_FILE"][0]))
@@ -312,6 +316,8 @@ class Updater:
                 self.agents[i].save_network("round_{0}".format(self.cnt_round))
 
         else:
+            if self.dic_exp_conf["PRETRAIN"] or self.dic_exp_conf["AGGREGATE"]:
+                raise RuntimeError('self.dic_exp_conf["PRETRAIN"] or self.dic_exp_conf["AGGREGATE"] must be False')
             if self.dic_exp_conf["PRETRAIN"]:
                 self.agents[i].q_network.save(os.path.join(self.dic_path["PATH_TO_PRETRAIN_MODEL"],
                                                            "{0}_inter_{1}.h5".format(

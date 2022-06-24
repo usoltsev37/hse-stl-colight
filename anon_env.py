@@ -278,7 +278,7 @@ class Intersection:
             for lane_id in _top_k_leaving_lane:
                 top_k_leaving_lane.append(lane_id_to_global_index_dict[lane_id]
                                           if (lane_id is not None) and (
-                            lane_id in lane_id_to_global_index_dict.keys())  # TODO leaving lanes of system will also have -1
+                        lane_id in lane_id_to_global_index_dict.keys())  # TODO leaving lanes of system will also have -1
                                           else -1)
             self.adjacency_row_lanes.append([top_k_entering_lane, top_k_leaving_lane])
 
@@ -1148,8 +1148,8 @@ class AnonEnv:
             pickle.dump(self.list_inter_log[inter_ind], f)
             f.close()
 
-        self.eng.print_log(os.path.join(self.path_to_log, self.dic_traffic_env_conf["ROADNET_FILE"]),
-                           os.path.join(self.path_to_log, "replay_1_1.txt"))
+        # self.eng.print_log(os.path.join(self.path_to_log, self.dic_traffic_env_conf["ROADNET_FILE"]),
+        #                    os.path.join(self.path_to_log, "replay_1_1.txt"))
 
         # print("log files:", os.path.join("data", "frontend", "roadnet_1_1_test.json"))
 

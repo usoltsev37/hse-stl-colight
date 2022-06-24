@@ -9,11 +9,17 @@ from pipeline import Pipeline
 
 # matplotlib.use('TkAgg')
 
-multi_process = True
+RUN_COUNTS = 100
+NUM_GENERATORS = 1
+REAL_NUM_ROUNDS = 10
+
+multi_process = False
+if multi_process:
+    raise RuntimeError(f"multi_process must be false because CityFlow Engine does not support multi_process")
 TOP_K_ADJACENCY = -1
 TOP_K_ADJACENCY_LANE = -1
 PRETRAIN = False
-NUM_ROUNDS = 100
+NUM_ROUNDS = REAL_NUM_ROUNDS
 EARLY_STOP = False
 NEIGHBOR = False
 SAVEREPLAY = False
@@ -39,7 +45,7 @@ def parse_args():
     global TOP_K_ADJACENCY_LANE
     TOP_K_ADJACENCY_LANE = 5
     global NUM_ROUNDS
-    NUM_ROUNDS = 100
+    NUM_ROUNDS = REAL_NUM_ROUNDS
     global EARLY_STOP
     EARLY_STOP = False
     global NEIGHBOR
@@ -55,12 +61,12 @@ def parse_args():
     global PRETRAIN
     PRETRAIN = False
     parser.add_argument("--mod", type=str, default='SimpleDQN')  # SimpleDQN,SimpleDQNOne,GCN,CoLight,Lit
-    parser.add_argument("--cnt", type=int, default=3600)  # 3600
-    parser.add_argument("--gen", type=int, default=4)  # 4
+    parser.add_argument("--cnt", type=int, default=RUN_COUNTS)  # 3600
+    parser.add_argument("--gen", type=int, default=NUM_GENERATORS)  # 4
 
     parser.add_argument("-all", action="store_true", default=False)
     parser.add_argument("--workers", type=int, default=7)
-    parser.add_argument("--onemodel", type=bool, default=False)
+    parser.add_argument("--onemodel", type=bool, default=False)  # count of agents / interseptions
 
     parser.add_argument("--visible_gpu", type=str, default="-1")
     global ANON_PHASE_REPRE

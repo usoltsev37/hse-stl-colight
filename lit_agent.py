@@ -20,7 +20,7 @@ class LitAgent(NetworkAgent):
                 d_phase_encoding = _shape[0]
             else:
                 _shape = (
-                self.dic_traffic_env_conf["DIC_FEATURE_DIM"]["D_" + feature_name.upper()][0] * self.num_lanes,)
+                    self.dic_traffic_env_conf["DIC_FEATURE_DIM"]["D_" + feature_name.upper()][0] * self.num_lanes,)
             print("_shape", _shape, feature_name)
             dic_input_node[feature_name] = Input(shape=_shape,
                                                  name="input_" + feature_name)

@@ -3,7 +3,6 @@ import os
 import pickle
 import random
 import shutil
-import time
 import traceback
 import xml.etree.ElementTree as ET
 from math import isnan
@@ -139,6 +138,7 @@ class Pipeline:
         self.sample_inter_id = random.sample(range(self.dic_traffic_env_conf["NUM_INTERSECTIONS"]), sample_num)
 
     def early_stopping(self, dic_path, cnt_round):  # Todo multi-process
+        global time
         print("decide whether to stop")
         early_stopping_start_time = time.time()
         record_dir = os.path.join(dic_path["PATH_TO_WORK_DIRECTORY"], "test_round", "round_" + str(cnt_round))
@@ -282,6 +282,8 @@ class Pipeline:
         f_time.close()
 
         if self.dic_exp_conf["PRETRAIN"]:
+            raise RuntimeError('self.dic_exp_conf["PRETRAIN"] must be False')
+        if self.dic_exp_conf["PRETRAIN"]:
             if os.listdir(self.dic_path["PATH_TO_PRETRAIN_MODEL"]):
                 for i in range(self.dic_traffic_env_conf["NUM_AGENTS"]):
                     # TODO:only suitable for CoLight
@@ -350,6 +352,8 @@ class Pipeline:
                                              best_round=best_round)
         # train with aggregate samples
         if self.dic_exp_conf["AGGREGATE"]:
+            raise RuntimeError('self.dic_exp_conf["AGGREGATE"] must be False')
+        if self.dic_exp_conf["AGGREGATE"]:
             if "aggregate.h5" in os.listdir("model/initial"):
                 shutil.copy("model/initial/aggregate.h5",
                             os.path.join(self.dic_path["PATH_TO_MODEL"], "round_0.h5"))
@@ -377,12 +381,13 @@ class Pipeline:
 
         # trainf
         for cnt_round in range(self.dic_exp_conf["NUM_ROUNDS"]):
-            print("round %d starts" % cnt_round)
+            print("------------------------------- ROUND %d STARTS -------------------------------" % cnt_round)
             round_start_time = time.time()
 
             process_list = []
 
-            print("==============  generator =============")
+            print("=============  generator =============")
+            # start generators - agents interact with env
             generator_start_time = time.time()
             if multi_process:
                 for cnt_gen in range(self.dic_exp_conf["NUM_GENERATORS"]):
@@ -390,17 +395,11 @@ class Pipeline:
                                 args=(cnt_round, cnt_gen, self.dic_path, self.dic_exp_conf,
                                       self.dic_agent_conf, self.dic_traffic_env_conf, best_round)
                                 )
-                    print("before p")
                     p.start()
-                    print("end p")
                     process_list.append(p)
-                print("before join")
                 for i in range(len(process_list)):
                     p = process_list[i]
-                    print("generator %d to join" % i)
                     p.join()
-                    print("generator %d finish join" % i)
-                print("end join")
             else:
                 for cnt_gen in range(self.dic_exp_conf["NUM_GENERATORS"]):
                     self.generator_wrapper(cnt_round=cnt_round,
@@ -412,10 +411,10 @@ class Pipeline:
                                            best_round=best_round)
             generator_end_time = time.time()
             generator_total_time = generator_end_time - generator_start_time
+
             print("==============  make samples =============")
             # make samples and determine which samples are good
             making_samples_start_time = time.time()
-
             train_round = os.path.join(self.dic_path["PATH_TO_WORK_DIRECTORY"], "train_round")
             if not os.path.exists(train_round):
                 os.makedirs(train_round)
@@ -423,8 +422,6 @@ class Pipeline:
             cs = ConstructSample(path_to_samples=train_round, cnt_round=cnt_round,
                                  dic_traffic_env_conf=self.dic_traffic_env_conf)
             cs.make_reward_for_system()
-
-            # EvaluateSample()
             making_samples_end_time = time.time()
             making_samples_total_time = making_samples_end_time - making_samples_start_time
 
@@ -441,9 +438,7 @@ class Pipeline:
                                       best_round,
                                       bar_round))
                     p.start()
-                    print("update to join")
                     p.join()
-                    print("update finish join")
                 else:
                     self.updater_wrapper(cnt_round=cnt_round,
                                          dic_agent_conf=self.dic_agent_conf,
@@ -492,7 +487,7 @@ class Pipeline:
                     break
 
             print('==============  model pool evaluation =============')
-            if self.dic_exp_conf["MODEL_POOL"] and cnt_round > 50:
+            if self.dic_exp_conf["MODEL_POOL"] and cnt_round > self.dic_exp_conf["NUM_ROUNDS"] / 2:
                 if multi_process:
                     p = Process(target=self.model_pool_wrapper,
                                 args=(self.dic_path,
@@ -500,9 +495,7 @@ class Pipeline:
                                       cnt_round),
                                 )
                     p.start()
-                    print("model_pool to join")
                     p.join()
-                    print("model_pool finish join")
                 else:
                     self.model_pool_wrapper(dic_path=self.dic_path,
                                             dic_exp_conf=self.dic_exp_conf,
